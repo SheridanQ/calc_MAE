@@ -121,7 +121,7 @@ def load_pair_dir(pair_dir1_path, pair_dir2_path):
     return dir_list1, dir_list2
 
 def write_MAE(value, pathname):
-    f = open(os.path.join(path,name),'w')
+    f = open(pathname,'w')
     f.write(str(value) + '\n')
     f.close()
 
@@ -134,6 +134,7 @@ def main():
 	dir_list1, dir_list2=load_pair_dir(pair_dir1_path, pair_dir2_path)
 
 	MAE=get_min_angles(dir_list1, dir_list2)
+	print(MAE)
 	write_MAE(MAE, sys.argv[3])
 
 if __name__=="__main__":
