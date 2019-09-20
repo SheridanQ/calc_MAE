@@ -1,5 +1,4 @@
-# Setup code 
-# @author: Xiaoxiao Qi
+# Setup code for this notebook.
 import numpy as np
 from numpy import nan
 import nibabel as nib
@@ -69,7 +68,7 @@ def calc_dir_angles(dir1, dir2):
     def angle_calc(v1, v2):
         if np.isnan(v1).any() or not np.any(v2): # v1==[nan nan nan] or [0 0 0]
             if np.isnan(v2).any() or not np.any(v2):# v2==[0 0 0] or [nan nan nan]
-                angle=np.nan
+                angle=0 ## 0 instead of np.nan. Because 2 nan values means match
             else:
                 angle=90
         else:
