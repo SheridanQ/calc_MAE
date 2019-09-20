@@ -1,4 +1,5 @@
-# Setup code for this notebook.
+# Setup code 
+# @author: Xiaoxiao Qi
 import numpy as np
 from numpy import nan
 import nibabel as nib
