@@ -166,7 +166,7 @@ def main():
 
     MAE = get_min_angles(dir_list1, dir_list2)
     print(MAE)
-    write_MAE(str(MAE[0])+','+str(MAE[1])+','+str(MAE[2])+','+str(MAE[3])+','+str(MAE[4])+','+str(MAE[5]) sys.argv[3])
+    write_MAE(str(MAE[0])+','+str(MAE[1])+','+str(MAE[2])+','+str(MAE[3])+','+str(MAE[4])+','+str(MAE[5]), sys.argv[3])
 
 
 if __name__=="__main__":
