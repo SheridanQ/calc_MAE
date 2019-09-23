@@ -139,8 +139,9 @@ def get_min_angles(dir_list1, dir_list2):
         
     # get the mean for the whole brain (igoring voxels outside both images)
     angles_mean = np.nanmean(np.array(angles))
+    angles_nonzeromean = np.nanmean(np.where(np.array(angles)!=0, np.array(angles), np.nan))
 
-    return angles_mean, len(angles), np.count_nonzero(~np.isnan(angles)), np.count_nonzero(angles == 0), np.count_nonzero(angles == 90)
+    return angles_mean, angles_nonzeromean, len(angles), np.count_nonzero(~np.isnan(angles)), np.count_nonzero(angles == 0), np.count_nonzero(angles == 90)
 
 def load_pair_dir(pair_dir1_path, pair_dir2_path):
     dir_list1, pp1 = split_3_peaks(pair_dir1_path)
