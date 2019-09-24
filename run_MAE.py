@@ -48,6 +48,7 @@ def write_qscript(data_list, outdir):
 		os.remove(job_list)
 	
 	for i in range(len(pairs_list)):
+		
 		dir_path1=pairs_list[i][0]
 		dir_path2=pairs_list[i][1]
 
@@ -56,12 +57,12 @@ def write_qscript(data_list, outdir):
 		
 		pair_name=str(str(dir_id1)+str(dir_id2))
 
-		outputname=str(outdir + '/' + pair_name + '.txt')
+		outputpath=str(outdir + '/' + pair_name)
 
 		qscript=str(outdir + '/jobs' + '/job_' + pair_name + '_qsub.sh')
 		if os.path.exists(qscript):
 			os.remove(qscript)
-		cmdline=str('python ' + workdir + '/calc_MAE.py '+ dir_path1 + ' ' + dir_path2 + ' ' + outputname)
+		cmdline=str('python ' + workdir + '/calc_MAE.py '+ dir_path1 + ' ' + dir_path2 + ' ' + outputpath)
 		cmdsource=str('source activate clusterneuroimaging')
 
 		write_cmdline(cmdsource, qscript)

@@ -104,7 +104,7 @@ def calc_v_list_angles(vlist1, vlist2):
 
 
 # This function is for the whole brain voxels
-def get_min_angles(dir_list1, dir_list2):
+def get_min_angles(dir_list1, dir_list2, outdir):
     """
     To get the min angle for each peak after compared with peak from the other subject
     Input: 2 lists of dir files from 2 subject
@@ -117,6 +117,9 @@ def get_min_angles(dir_list1, dir_list2):
     if dir_list1[0].affine.any() != dir_list2[0].affine.any() or dir_list1[0].shape != dir_list2[0].shape:
         raise ValueError("The two direction vectors are not comparable!")
         return
+
+    img_hdr= header=dir_list1[0].header.copy()
+    img_shape=dir_list1[0].get_data().shape
 
     data1 = [x.get_data() for x in dir_list1]
     data2 = [x.get_data() for x in dir_list2]
@@ -138,10 +141,29 @@ def get_min_angles(dir_list1, dir_list2):
             angles[i]=calc_v_list_angles(vlist1, vlist2)
         
     # get the mean for the whole brain (igoring voxels outside both images)
+    angles_data=angles.reshape(img_shape[:-1])
+    angles_img=nib.nifti1.Nifti1Image(angles_data, None, header=img_hdr)
+
+    # save results
+    if os.path.exists(outdir):
+        os.remove(outdir)
+    else:
+        os.mkdir(outdir)
+        
+    nib.save(angles_img, os.path.join(outdir,'angle_map.nii.gz'))
+    
+    def write_MAE(value, path, name):
+        pathname=os.path.join(path, name)
+        f = open(pathname, 'w')
+        f.write(str(value) + '\n')
+        f.close()
+
     angles_mean = np.nanmean(np.array(angles))
     angles_nonzeromean = np.nanmean(np.where(np.array(angles)!=0, np.array(angles), np.nan))
 
-    return angles_mean, angles_nonzeromean, len(angles), np.count_nonzero(~np.isnan(angles)), np.count_nonzero(angles == 0), np.count_nonzero(angles == 90)
+    write_MAE(str(angles_mean)+','+str(angles_nonzeromean)+','+str(len(angles))+','+str(np.count_nonzero(~np.isnan(angles)))+','+str(np.count_nonzero(angles == 0))+','+str(np.count_nonzero(angles == 90)), outdir, 'angle_describe.txt')
+
+    #return angles_mean, angles_nonzeromean, len(angles), np.count_nonzero(~np.isnan(angles)), np.count_nonzero(angles == 0), np.count_nonzero(angles == 90)
 
 def load_pair_dir(pair_dir1_path, pair_dir2_path):
     dir_list1, pp1 = split_3_peaks(pair_dir1_path)
@@ -158,16 +180,17 @@ def write_MAE(value, pathname):
 
 def main():
     """
-	Input: scriptname.py path1 path2 outdir outname
-	"""
+    Input: scriptname.py path1 path2 outdir outname
+    """
     pair_dir1_path = str(sys.argv[1])
     pair_dir2_path = str(sys.argv[2])
     dir_list1, dir_list2 = load_pair_dir(pair_dir1_path, pair_dir2_path)
 
-    MAE = get_min_angles(dir_list1, dir_list2)
-    print(MAE)
-    write_MAE(str(MAE[0])+','+str(MAE[1])+','+str(MAE[2])+','+str(MAE[3])+','+str(MAE[4])+','+str(MAE[5]), sys.argv[3])
-
+    get_min_angles(dir_list1, dir_list2, sys.argv[3])
 
 if __name__=="__main__":
- 	main()
+    if (len(sys.argv) != 4):
+        print(sys.argv)
+        print("Usage: calc_MAE.py dir_file1 dir_file2 output_dir\n")
+    else:    
+        main()
