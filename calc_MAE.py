@@ -64,7 +64,7 @@ def calc_v_angles(v1, v2):
     def angle_calc(v1, v2):
         if np.isnan(v1).any() or not np.any(v2):  # v1==[nan nan nan] or [0 0 0]
             if np.isnan(v2).any() or not np.any(v2):  # v2==[0 0 0] or [nan nan nan]
-                angle = 0  ## using zero instead of nan when the corresponding vectors are nans
+                angle = np.nan  ## within a voxel, when [v,v,nan] vs [v,v,nan], assign nan and nan a nan
             else:
                 angle = 90
         else:
@@ -82,11 +82,11 @@ def calc_v_angles(v1, v2):
     return angle
 
 
-# This function is within an voxel level, and calculate all peak directions
-def calc_v_list_angles(vlist1, vlist2):
+# This function is within an voxel level, and calculate peak angles correspondingly
+def calc_v_list_angles(vlist1, vlist2): # vector list, calc correspondingly
     """
     Input: vlist1=[[v1],[v2],[v3],...] vlist2=[[v1],[v2],[v3],...]
-    Output: a list with the same length as the vlists that contains the angles between the two vlists.
+    Output: a mean value that reflects the angles between peaks correspondingly
     """
     if len(vlist1) != len(vlist2):
         raise ValueError('Two vector lists are not the same length! Failed to compare them.')
@@ -95,13 +95,40 @@ def calc_v_list_angles(vlist1, vlist2):
     num = len(vlist1)
     list_angles = []
     for i in range(num):
-        list_angles.append(calc_v_angles(vlist1[i], vlist2[i]))
+        list_angles.append(calc_v_angles(vlist1[i],vlist2[i]))
           # length: num
 
-    min_angle = np.nanmin(np.array(list_angles).astype(np.float64), axis=0)  # scalar
+    mean_angle = np.nanmean(np.array(list_angles).astype(np.float64), axis=0)  # scalar
+
+    return mean_angle
+
+# This function is within an voxel level, 
+# and get the min of all angles calc from all combinations of peak orientations.
+def calc_min_list_angles(vlist1,vlist2):
+    """
+    Input: vlist1=[[v1],[v2],[v3],...] vlist2=[[v1],[v2],[v3],...]
+    Output: a minimum value that represent the minimum of all combinations of orientations.
+    """
+    if len(vlist1) != len(vlist2):
+        raise ValueError('Two vector lists are not the same length! Failed to compare them.')
+        return
+    num = len(vlist1)
+    # find all combinations of peak orientations between two voxels
+    import itertools
+    iterlist1=[list(x) for x in list(itertools.permutations(vlist1,num))]
+    iterlist2=[list(x) for x in list(itertools.permutations(vlist2,num))]
+    pairs=[]
+    for i in range(len(iterlist1)):
+        for j in range(len(iterlist2)):
+            pairs.append([iterlist1[i],iterlist2[j]])
+
+    list_angles = []
+    for i in range(len(pairs)):
+        list_angles.append(calc_v_list_angles(pairs[i][0],pairs[i][1]))
+
+    min_angle = np.nanmin(np.array(list_angles).astype(np.float64),axis=0)
 
     return min_angle
-
 
 # This function is for the whole brain voxels
 def get_min_angles(dir_list1, dir_list2, outdir):
@@ -138,7 +165,7 @@ def get_min_angles(dir_list1, dir_list2, outdir):
         if np.isnan(vlist1[0]).any() and np.isnan(vlist2[0]).any():
             angles[i]=np.nan
         else:
-            angles[i]=calc_v_list_angles(vlist1, vlist2)
+            angles[i]=calc_min_list_angles(vlist1, vlist2)
         
     # get the mean for the whole brain (igoring voxels outside both images)
     angles_data=angles.reshape(img_shape[:-1])
