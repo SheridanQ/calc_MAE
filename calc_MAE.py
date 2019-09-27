@@ -3,7 +3,7 @@
 import numpy as np
 from numpy import nan
 import nibabel as nib
-import os, sys
+import os, sys, shutil
 import glob
 
 
@@ -173,7 +173,8 @@ def get_min_angles(dir_list1, dir_list2, outdir):
 
     # save results
     if os.path.exists(outdir):
-        os.remove(outdir)
+        shutil.rmtree(outdir)
+        os.mkdir(outdir)
     else:
         os.mkdir(outdir)
         
