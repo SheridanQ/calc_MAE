@@ -66,10 +66,10 @@ def calc_v_angles(v1, v2):
             if np.isnan(v2).any() or not np.any(v2):  # v2==[0 0 0] or [nan nan nan]
                 angle = np.nan  ## within a voxel, when [v,v,nan] vs [v,v,nan], assign nan and nan a nan
             else:
-                angle = 90
+                angle = np.nan
         else:
             if np.isnan(v2).any() or not np.any(v2):
-                angle = 90
+                angle = np.nan
             else:
                 angle = angle_between(v1, v2)
                 # if angle > 90??
@@ -162,7 +162,7 @@ def get_min_angles(dir_list1, dir_list2, outdir):
         vlist1 = [x[i] for x in arr_list1]
         vlist2 = [x[i] for x in arr_list2]
         # if for both of the images, the voxels are empty
-        if np.isnan(vlist1[0]).any() and np.isnan(vlist2[0]).any():
+        if any([np.isnan(x).any() for x in vlist1]) and any([np.isnan(x).any() for x in vlist2]):
             angles[i]=np.nan
         else:
             angles[i]=calc_min_list_angles(vlist1, vlist2)
