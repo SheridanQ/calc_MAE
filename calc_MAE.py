@@ -162,7 +162,7 @@ def get_min_angles(dir_list1, dir_list2, outdir):
         vlist1 = [x[i] for x in arr_list1]
         vlist2 = [x[i] for x in arr_list2]
         # if for both of the images, the voxels are empty
-        if any([np.isnan(x).any() for x in vlist1]) and any([np.isnan(x).any() for x in vlist2]):
+        if all([np.isnan(x).any() for x in vlist1]) and all([np.isnan(x).any() for x in vlist2]):
             angles[i]=np.nan
         else:
             angles[i]=calc_min_list_angles(vlist1, vlist2)
